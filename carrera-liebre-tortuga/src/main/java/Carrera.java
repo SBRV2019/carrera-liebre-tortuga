@@ -38,10 +38,10 @@ public class Carrera {
         Animal tortuga = new Tortuga("tortuga");
         liebre.setSemaforoContendiente(tortuga.getSemaforoAnimal());
         liebre.setSemaforoAvanzar(semaforoAvanzar);
-        //liebre.setSemaforoMovimiento(semaforoMovimiento);
+        liebre.setSemaforoMovimiento(semaforoMovimiento);
         tortuga.setSemaforoContendiente(liebre.getSemaforoAnimal());
         tortuga.setSemaforoAvanzar(semaforoAvanzar);
-        //tortuga.setSemaforoMovimiento(semaforoMovimiento);
+        tortuga.setSemaforoMovimiento(semaforoMovimiento);
 
         System.out.println("Bang");
         System.out.println("Comienza la carrera");
@@ -55,7 +55,7 @@ public class Carrera {
         liebre.start();
 
         while (!liebre.isMetaAlcanzada() && !tortuga.isMetaAlcanzada()) {
-            Thread.sleep(100);
+            Thread.sleep(100); //tic-tac
 
             semaforoAvanzar.release();
             semaforoAvanzar.release();
@@ -63,6 +63,15 @@ public class Carrera {
             aleatorio = ThreadLocalRandom.current().nextInt(1, 10 + 1);
             liebre.setAleatorio(aleatorio);
             tortuga.setAleatorio(aleatorio);
+
+            semaforoMovimiento.acquire();
+            semaforoMovimiento.acquire();
+
+            if(liebre.getDistancia() == tortuga.getDistancia()) {
+                if(!liebre.isDuerme() && liebre.getDistancia() != 1) {
+                    System.out.println("OUCH!!!");
+                }
+            }
         }
 
         if (liebre.isMetaAlcanzada() && tortuga.isMetaAlcanzada()) {
@@ -77,13 +86,13 @@ public class Carrera {
 
         } else if (tortuga.isMetaAlcanzada()) {
             System.out.println("LA TORTUGA GANÓ!!! EH!!!");
+            //si alcanzó y está durmiendo?
         }
 
         // finalizamos carrera
         liebre.setMetaAlcanzada(true);
         tortuga.setMetaAlcanzada(true);
-        semaforoAvanzar.release();
-        semaforoAvanzar.release();
+        semaforoAvanzar.release(2+1); //+1 para liberar al dormilón (si lo hay)
     }
 /*
     public static void main(String[] args) throws InterruptedException {

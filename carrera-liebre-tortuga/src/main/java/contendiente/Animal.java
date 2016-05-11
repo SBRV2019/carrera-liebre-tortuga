@@ -23,9 +23,11 @@ import java.util.concurrent.Semaphore;
 public abstract class Animal extends Thread {
 
     private Semaphore semaforoAnimal = new Semaphore(1);
-    private Semaphore semaforoContendiente = null; //explícito!
+    private Semaphore semaforoContendiente = null;
     private Semaphore semaforoAvanzar = null;
+    private Semaphore semaforoMovimiento = null;
     private boolean metaAlcanzada = false;
+    private boolean duerme = false;
     private int distancia = 1;
     private int aleatorio = 0;
 
@@ -43,6 +45,14 @@ public abstract class Animal extends Thread {
 
     public void setSemaforoAvanzar(Semaphore semaforoAvanzar) {
         this.semaforoAvanzar = semaforoAvanzar;
+    }
+
+    public void setSemaforoMovimiento(Semaphore semaforoMovimiento) {
+        this.semaforoMovimiento = semaforoMovimiento;
+    }
+
+    public boolean isDuerme() {
+        return duerme;
     }
 
     public boolean isMetaAlcanzada() {
@@ -76,12 +86,17 @@ public abstract class Animal extends Thread {
 
             int movimiento = getMovimiento(aleatorio);
             if (movimiento == 0) {
+                duerme = true;
                 //dormir 2 segundos (turnos)
                 semaforoAnimal.release();
+
                 //esperamos señal para avanzar turno
                 semaforoAvanzar.acquire();
-                //zzz
-                System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+                {
+                    //zzz
+                    System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+                }
+                semaforoMovimiento.release();
                 semaforoContendiente.acquire();
             }
 
@@ -97,9 +112,13 @@ public abstract class Animal extends Thread {
                     metaAlcanzada = true;
                 }
                 System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+                duerme = false;
             }
+            semaforoMovimiento.release();
 
         }
+
+        semaforoAnimal.release(); //para liberar al dormilón (si lo hay)
     }
 
     @Override
