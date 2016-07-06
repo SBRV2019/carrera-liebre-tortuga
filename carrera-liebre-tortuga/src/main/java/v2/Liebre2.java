@@ -1,9 +1,9 @@
-package contendiente;
+package v2;
 
 /**
  * Created by adun on 11/05/2016.
  */
-public class Liebre extends Animal {
+public class Liebre2 extends Animal2 {
 
     private static final int DORMIR = 0;
     private static final int SALTO_LARGO = 9;
@@ -11,7 +11,7 @@ public class Liebre extends Animal {
     private static final int SALTO_PEQUEÑO = 1;
     private static final int RESBALON_PEQUEÑO = -2;
 
-    public Liebre(String name) {
+    public Liebre2(String name) {
         super(name);
     }
 

@@ -1,15 +1,15 @@
-package contendiente;
+package v2;
 
 /**
  * Created by adun on 11/05/2016.
  */
-public class Tortuga extends Animal {
+public class Tortuga2 extends Animal2 {
 
     private static final int PASO_RAPIDO = 3;
     private static final int RESBALON = -6;
     private static final int PASO_LENTO = 1;
 
-    public Tortuga(String name) {
+    public Tortuga2(String name) {
         super(name);
     }
 

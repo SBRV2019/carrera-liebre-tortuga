@@ -1,0 +1,220 @@
+package v2;
+
+import java.util.concurrent.Semaphore;
+
+/**
+ * Created by adun on 11/05/2016.
+ * semTortuga = Semaphore (1)
+ * Este semáforo le permite a la tortuga correr (realizar 1 movimiento). La liebre envía esta señal.
+ * semLiebre = Semaphore (1)
+ * Este semáforo le permite a la liebre correr (realizar 1 movimiento). La tortuga envía esta señal.
+ * semAvanzar = Semaphore (0)
+ * Este semáforo le permite tanto a la tortuga como a la liebre seguir corriendo
+ * (realizar 1 movimiento a cada uno)
+ * después de realizarse la verificación acerca de la posición de ambos contendientes.
+ * Esta verificación se realiza
+ * después que ambos realizaron sus movimientos con el objetivo de determinar si la
+ * tortuga muerde a la liebre o de
+ * dar por finalizada la carrera. La clase principal envía esta señal.
+ * semMovimiento = Semaphore (0)
+ * Este semáforo le permite a la clase principal verificar la posición de ambos contendientes para determinar si la
+ * tortuga muerde a la liebre. La liebre y la tortuga envían esta señal.
+ */
+public abstract class Animal2 extends Thread {
+
+  //
+  private Semaphore semaforoAnimal = new Semaphore(1);
+  private Semaphore semaforoContendiente = null;
+
+  // semáforo envía esto
+  private Semaphore semaforoAvanzar = null;
+  private Semaphore semaforoMovimiento = null;
+
+  private boolean carreraFinalizada = false;
+  private boolean duerme = false;
+  private int distancia = 1;
+  private int aleatorio = 0;
+
+  public Animal2(String name) {
+    super(name);
+  }
+
+  public Semaphore getSemaforoAnimal() {
+    return semaforoAnimal;
+  }
+
+  public void setSemaforoContendiente(Semaphore semaforoContendiente) {
+    this.semaforoContendiente = semaforoContendiente;
+  }
+
+  public void setSemaforoAvanzar(Semaphore semaforoAvanzar) {
+    this.semaforoAvanzar = semaforoAvanzar;
+  }
+
+  public void setSemaforoMovimiento(Semaphore semaforoMovimiento) {
+    this.semaforoMovimiento = semaforoMovimiento;
+  }
+
+  public boolean isDuerme() {
+    return duerme;
+  }
+
+  public boolean isCarreraFinalizada() {
+    return carreraFinalizada;
+  }
+
+  public void setCarreraFinalizada(boolean carreraFinalizada) {
+    this.carreraFinalizada = carreraFinalizada;
+  }
+
+  public void setAleatorio(int aleatorio) {
+    this.aleatorio = aleatorio;
+  }
+
+  public int getDistancia() {
+    return distancia;
+  }
+
+  //  Semaphore semaphore = new Semaphore(0);
+  //    public void ticTac() {
+  //        semaphore.release();
+  //    }
+
+  private void carrera() throws InterruptedException {
+
+    System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia);
+    while (!carreraFinalizada) {
+
+      semaforoAvanzar.acquire();
+      int movimiento = getMovimiento(aleatorio);
+
+      if (movimiento != 0) {
+        distancia += movimiento;
+        if (distancia <= 1) {
+          distancia = 1;
+        }
+        dormir no está muy claro en el enunciado!;
+//        else if (distancia >= 70) {
+//          carreraFinalizada = true; //no esto lo controla la clase principal
+//        }
+
+        System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+      } else {
+        //dormir 1 vez, en el sgte se despierta
+        semaphore.acquire();
+      }
+
+      semaforoMovimiento.release();
+
+      // verificamos si ha clase principal nos dice que ha finalizado la carrera
+      if(carreraFinalizada) {
+        break;
+      }
+
+
+      if (movimiento != 0) {
+        distancia += movimiento;
+        if (distancia <= 1) {
+          distancia = 1;
+        } else if (distancia >= 70) {
+          carreraFinalizada = true;
+        }
+        System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+      } else {
+        //dormir 1 vez, en el sgte se despierta
+        semaphore.acquire();
+      }
+    }
+
+
+    //    System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia);
+    //
+    //    while (!carreraFinalizada) {
+    //
+    //      semaforoContendiente.acquire(); //espera a contendiente
+    //
+    //      int movimiento = getMovimiento(aleatorio);
+    //      if (movimiento == 0) {
+    //        duerme = true;
+    //        //dormir 2 segundos (turnos)
+    //        semaforoAnimal.release();
+    //
+    //        //esperamos señal para avanzar turno
+    //        semaforoAvanzar.acquire();
+    //        {
+    //          //zzz
+    //          System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+    //        }
+    //        semaforoMovimiento.release();
+    //        semaforoContendiente.acquire();
+    //      }
+    //
+    //      semaforoAnimal.release(); //ya ha hecho movimiento libero
+    //
+    //      //esperamos señal para avanzar turno
+    //      semaforoAvanzar.acquire();
+    //      {
+    //        distancia += movimiento;
+    //        if (distancia <= 1) {
+    //          distancia = 1;
+    //        } else if (distancia >= 90) {
+    //          carreraFinalizada = true;
+    //        }
+    //        System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+    //        duerme = false;
+    //      }
+    //      semaforoMovimiento.release();
+    //
+    //    }
+    //
+    //    semaforoAnimal.release(); //para liberar al dormilón (si lo hay)
+  }
+
+  @Override
+  public void run() {
+    try {
+      carrera();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+/*
+    @Override
+    public void run() {
+
+        System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia);
+
+        while (!metaAlcanzada) {
+
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            int movimiento = getMovimiento(aleatorio);
+            if (movimiento != 0) {
+                distancia += movimiento;
+                if (distancia <= 1) {
+                    distancia = 1;
+                } else if (distancia >= 90) {
+                    metaAlcanzada = true;
+                }
+                System.out.println("La " + getName() + " se encuentra en el Kilómetro " + distancia + " - Realizó el movimiento: " + getMovimientoName(aleatorio));
+            } else {
+                //dormir 1 vez, en el sgte se despierta
+                try {
+                    semaphore.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+*/
+
+  public abstract int getMovimiento(int random);
+
+  public abstract String getMovimientoName(int random);
+}
